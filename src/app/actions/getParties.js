@@ -2,6 +2,8 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+
 
 export async function getPartiesByRegion(regionCode) {
   const parties = await prisma.party.findMany({
@@ -50,4 +52,45 @@ export async function getParties() {
       locations: true,
     },
   });
+}
+
+
+export async function getAllParties() {
+  return prisma.party.findMany({
+        orderBy: {
+      id: "asc",
+    },
+  });
+}
+
+export async function editParty(formData) {
+  const id = Number(formData.get("id"));
+  const numberOfVoting = Number(formData.get("numberOfVoting"));
+  const thisElecChairs = Number(formData.get("thisElecChairs"));
+
+  await prisma.party.update({
+    where: { id },
+    data: { numberOfVoting, thisElecChairs },
+  });
+
+  // Optional (helps if you later move fetching to RSC/ISR/tagged fetch):
+  revalidatePath("/"); // <-- set this to the actual route that renders this UI
+
+  return { ok: true, id, numberOfVoting, thisElecChairs };
+}
+
+export async function editPartyRegion(formData) {
+  const id = Number(formData.get("id"));
+  const regionCode = String(formData.get("regionCode"))
+  const numberOfVoting = Number(formData.get("numberOfVoting"));
+
+  await prisma.location.update({
+    where: { partyId: id, regionCode },
+    data: { numberOfVoting },
+  });
+
+  // Optional (helps if you later move fetching to RSC/ISR/tagged fetch):
+  revalidatePath("/"); // <-- set this to the actual route that renders this UI
+
+  return { ok: true, id, numberOfVoting };
 }

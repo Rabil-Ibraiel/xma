@@ -40,7 +40,7 @@ const PARTIES = [
   { arabicName: "التحالف الوطني للتصميم", abbr: "NDC", color: "#892f2f" }, // صحّح الاسم إن لزم
   { arabicName: "حزب تقدم", abbr: "TQD", color: "#f6851d" },
   { arabicName: "تحالف عزم", abbr: "AZM", color: "#a1b787" },
-  { arabicName: "تحالف السيادة/تشريع", abbr: "STA", color: "#7c5a1a" },
+  { arabicName: "تحالف السيادة/تشريع", abbr: "SIA", color: "#7c5a1a" },
   { arabicName: "ائتلاف قوى الدولة الوطنية", abbr: "NSFC", color: "#085798" },
   { arabicName: "ائتلاف خدمات", abbr: "SER", color: "#0e4a78" },
 ];
