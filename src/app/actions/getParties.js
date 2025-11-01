@@ -117,25 +117,23 @@ export async function loadPartyRegion(_prevState, formData) {
     const codeHyphen = rawCode.replace(/_/g, "-");
 
     // Read location (votes) and party (chairs) in one round-trip
-    const [loc, party] = await prisma.$transaction([
+    const loc = await prisma.$transaction([
       prisma.location.findFirst({
         where: {
           partyId,
           regionCode: { in: [rawCode, codeUnderscore, codeHyphen] },
         },
-        select: { numberOfVoting: true },
-      }),
-      prisma.party.findUnique({
-        where: { id: partyId },
-        select: { thisElecChairs: true },
-      }),
+        select: { numberOfVoting: true, thisElecChairs: true},
+      })
     ]);
+
+    console.log(loc)
 
     // If no location exists yet → return votes = 0 (or you can fallback to party.total if you prefer)
     return {
       ok: true,
-      numberOfVoting: loc?.numberOfVoting ?? 0,
-      thisElecChairs: party?.thisElecChairs ?? 0,
+      numberOfVoting: loc[0]?.numberOfVoting ?? 0,
+      thisElecChairs: loc[0]?.thisElecChairs ?? 0,
       source: loc ? "location" : "no-location",
     };
   } catch (e) {
@@ -173,19 +171,14 @@ export async function editPartyRegion(formData) {
     if (existing) {
       await tx.location.update({
         where: { id: existing.id },
-        data: { numberOfVoting },
+        data: { numberOfVoting, thisElecChairs },
       });
     } else {
       await tx.location.create({
-        data: { partyId: id, regionCode, numberOfVoting },
+        data: { partyId: id, regionCode, numberOfVoting, thisElecChairs },
       });
     }
 
-    // Update party-level chairs
-    await tx.party.update({
-      where: { id },
-      data: { thisElecChairs },
-    });
   });
 
   // Revalidate the page that renders this UI
