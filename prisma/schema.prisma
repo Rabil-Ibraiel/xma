@@ -30,6 +30,7 @@ model Location {
 
   // Enforce: at most one row per (party, region)
   @@unique([partyId, regionCode], name: "party_region_unique")
+  
 
   // Helpful for queries
   @@index([partyId])
